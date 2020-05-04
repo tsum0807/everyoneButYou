@@ -43,11 +43,13 @@ namespace EveryoneButYou
             {
                 if (def.name.Contains("Characters."))
                 {
+                    //Chat.AddMessage(def.name);
                     foreach(string character in this.BannedCharacters)
                     {
                         if (def.name.Contains(character))
                         {
                             // Remove from list
+                            //Chat.AddMessage("Removing "+def.name);
                             availableUnlockableDefs.Remove(def);
                             break;
                         }

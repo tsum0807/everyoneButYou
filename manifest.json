@@ -1,0 +1,9 @@
+{
+    "name": "EveryoneButYou",
+    "version_number": "1.0.0",
+    "website_url": "",
+    "description": "Ban survivors you do not wish to play when playing with artifact of metamorphosis",
+    "dependencies": [
+        "bbepis-BepInExPack-3.2.0"
+    ]
+}
