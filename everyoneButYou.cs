@@ -1,34 +1,20 @@
 ﻿
 using BepInEx;
-//using On.RoR2;
 using RoR2;
-using BepInEx.Configuration;
-using System;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
 using System.IO;
 
 namespace EveryoneButYou
 {
     [BepInDependency("com.bepis.r2api")]
-    //Change these
     [BepInPlugin("com.beneb.EveryoneButYou", "EveryoneButYou", "1.0.0")]
     public class EveryoneButYou : BaseUnityPlugin
     {
         public void Awake()
         {
             this.BannedCharacters = new List<string>();
-            /*this.BannedCharacters.Add("Commando");
-            this.BannedCharacters.Add("Engi");
-            this.BannedCharacters.Add("Huntress");
-            this.BannedCharacters.Add("Loader");
-            this.BannedCharacters.Add("Mage");
-            this.BannedCharacters.Add("Mercenary");
-            this.BannedCharacters.Add("Toolbot");*/
 
             this.getConfig();
 
@@ -57,12 +43,11 @@ namespace EveryoneButYou
             {
                 if (def.name.Contains("Characters."))
                 {
-                    //Chat.AddMessage(def.name);
                     foreach(string character in this.BannedCharacters)
                     {
                         if (def.name.Contains(character))
                         {
-                            //Chat.AddMessage("banned " + def.name);
+                            // Remove from list
                             availableUnlockableDefs.Remove(def);
                             break;
                         }
@@ -110,6 +95,7 @@ namespace EveryoneButYou
                         {
                             components[i] = components[i].Trim();
                         }
+                        // Check for variables
                         if(components[0].StartsWith("enabled"))
                         {
                             this.modEnabled = bool.Parse(components[1]);
