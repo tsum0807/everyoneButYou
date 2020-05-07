@@ -19,15 +19,22 @@ namespace EveryoneButYou
             this.getConfig();
 
             Chat.AddMessage("Loaded EveryoneButYou");
-            Chat.AddMessage("---------------------");
-            Chat.AddMessage("These characters will not be selected in Artifact of Metamorphosis");
-            foreach (string c in this.BannedCharacters)
+            if (this.modEnabled)
             {
-                Chat.AddMessage(c);
+                Chat.AddMessage("---------------------");
+                Chat.AddMessage("These characters will not be selected in Artifact of Metamorphosis");
+                foreach (string c in this.BannedCharacters)
+                {
+                    Chat.AddMessage(c);
+                }
+                Chat.AddMessage("---------------------");
             }
-            Chat.AddMessage("---------------------");
+            else
+            {
+                Chat.AddMessage("EveryoneButYou is Disabled");
+            }
 
-            On.RoR2.CharacterMaster.PickRandomSurvivorBodyPrefab += delegate(On.RoR2.CharacterMaster.orig_PickRandomSurvivorBodyPrefab orig, 
+            On.RoR2.CharacterMaster.PickRandomSurvivorBodyPrefab += delegate (On.RoR2.CharacterMaster.orig_PickRandomSurvivorBodyPrefab orig,
                 global::Xoroshiro128Plus rng, List<UnlockableDef> availableUnlockableDefs)
             {
                 return this.CharacterMaster_PickRandomSurvivorBodyPrefab(orig, rng, availableUnlockableDefs);
@@ -38,22 +45,28 @@ namespace EveryoneButYou
         private GameObject CharacterMaster_PickRandomSurvivorBodyPrefab(On.RoR2.CharacterMaster.orig_PickRandomSurvivorBodyPrefab orig,
             Xoroshiro128Plus rng, List<UnlockableDef> availableUnlockableDefs)
         {
-            // Find and remove characters from copied unlocked list
-            foreach(UnlockableDef def in availableUnlockableDefs.ToList())
-            {
-                if (def.name.Contains("Characters."))
-                {
-                    //Chat.AddMessage(def.name);
-                    foreach(string character in this.BannedCharacters)
-                    {
-                        if (def.name.Contains(character))
-                        {
-                            // Remove from list
-                            //Chat.AddMessage("Removing "+def.name);
-                            availableUnlockableDefs.Remove(def);
-                            break;
-                        }
+            // Reread config file in case changes were made by user between runs
+            this.getConfig();
 
+            if (this.modEnabled)
+            {
+                // Find and remove characters from copied unlocked list
+                foreach (UnlockableDef def in availableUnlockableDefs.ToList())
+                {
+                    if (def.name.Contains("Characters."))
+                    {
+                        //Chat.AddMessage(def.name);
+                        foreach (string character in this.BannedCharacters)
+                        {
+                            if (def.name.Contains(character))
+                            {
+                                // Remove from list
+                                //Chat.AddMessage("Removing "+def.name);
+                                availableUnlockableDefs.Remove(def);
+                                break;
+                            }
+
+                        }
                     }
                 }
             }
