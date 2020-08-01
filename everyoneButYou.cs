@@ -45,8 +45,19 @@ namespace EveryoneButYou
         private GameObject CharacterMaster_PickRandomSurvivorBodyPrefab(On.RoR2.CharacterMaster.orig_PickRandomSurvivorBodyPrefab orig,
             Xoroshiro128Plus rng, List<UnlockableDef> availableUnlockableDefs)
         {
+            // Don't do anything on first map to play the actually selected character
+
+            // if (this.currentStage == 0){
+            //     this.currentStage++;
+            //     return;
+            // }
+            // this.currentStage++;
+
+
             // Reread config file in case changes were made by user between runs
             this.getConfig();
+
+            int numCharacters = 0;
 
             if (this.modEnabled)
             {
@@ -55,7 +66,6 @@ namespace EveryoneButYou
                 {
                     if (def.name.Contains("Characters."))
                     {
-                        //Chat.AddMessage(def.name);
                         foreach (string character in this.BannedCharacters)
                         {
                             if (def.name.Contains(character))
@@ -63,15 +73,31 @@ namespace EveryoneButYou
                                 // Remove from list
                                 //Chat.AddMessage("Removing "+def.name);
                                 availableUnlockableDefs.Remove(def);
+                                numCharacters--;
                                 break;
                             }
 
                         }
+                        numCharacters++;
                     }
                 }
             }
+
             // Run original rng with modified unlocked list
-            return orig(rng, availableUnlockableDefs);
+            if(!this.preventSameCharacterTwice || numCharacters < 2){
+                this.prevChar = orig(rng, availableUnlockableDefs);
+                return this.prevChar;
+            }
+
+            // Check to see if the new character is same as last
+            // Only if setting is enabled and there are enough other characters
+            GameObject newChar = orig(rng, availableUnlockableDefs);
+            while(this.prevChar != null && this.prevChar.name == newChar.name){
+                Chat.AddMessage("Prevented spawning as " + this.prevChar.name + " again.");
+                newChar = orig(rng, availableUnlockableDefs);
+            }
+            this.prevChar = newChar;
+            return this.prevChar;
         }
 
         private void getConfig()
@@ -84,6 +110,7 @@ namespace EveryoneButYou
 
                 string configText = "[General]" +
                     "\n\n## Enable EveryoneButYou Mod\n# Setting type: Boolean\n# Default value: true\nenabled = " + this.modEnabled.ToString() + 
+                    "\n\n## Prevent geting the same character twice in a row\n# Setting type: Boolean\n# Default value: true\npreventionEnabled = " + this.preventSameCharacterTwice.ToString() + 
                     "\n\n## Characters to disable when playing with Artifact of Metamorphosis\n##{Engineer, Huntress, Loader, Mage, Mercenary, Toolbot, Treebot, Croco}" +
                     "\n# Setting type: string\n# Default value: Engineer, Toolbot\ncharactersToBan = " + this.charactersToBan;
 
@@ -115,6 +142,10 @@ namespace EveryoneButYou
                         {
                             this.modEnabled = bool.Parse(components[1]);
                         }
+                        if(components[0].StartsWith("preventionEnabled"))
+                        {
+                            this.preventSameCharacterTwice = bool.Parse(components[1]);
+                        }
                         if(components[0].StartsWith("charactersToBan"))
                         {
                             this.BannedCharacters = this.parseCharacters(components[1]);
@@ -144,6 +175,9 @@ namespace EveryoneButYou
         private string configFile = "EveryoneButYouConfig.cfg";
         private string charactersToBan = "Engineer, Toolbot";
         private bool modEnabled = true;
+        private bool preventSameCharacterTwice = true;
+        private int currentStage = 0;
+        private GameObject prevChar = null;
 
     }
 }
