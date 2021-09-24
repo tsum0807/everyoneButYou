@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.IO;
+using System;
 
 namespace EveryoneButYou
 {
@@ -35,15 +36,22 @@ namespace EveryoneButYou
             }
 
             On.RoR2.CharacterMaster.PickRandomSurvivorBodyPrefab += delegate (On.RoR2.CharacterMaster.orig_PickRandomSurvivorBodyPrefab orig,
-                global::Xoroshiro128Plus rng, List<UnlockableDef> availableUnlockableDefs)
+                global::Xoroshiro128Plus rng, List<UnlockableDef> availableUnlockableDefs, bool allowHidden)
             {
-                return this.CharacterMaster_PickRandomSurvivorBodyPrefab(orig, rng, availableUnlockableDefs);
+                if (orig is null)
+                    throw new ArgumentNullException(nameof(orig));
+                if (rng is null)
+                    throw new ArgumentNullException(nameof(rng));
+                if (availableUnlockableDefs is null)
+                    throw new ArgumentNullException(nameof(availableUnlockableDefs));
+
+                return this.CharacterMaster_PickRandomSurvivorBodyPrefab(orig, rng, availableUnlockableDefs, allowHidden);
             };
 
         }
 
         private GameObject CharacterMaster_PickRandomSurvivorBodyPrefab(On.RoR2.CharacterMaster.orig_PickRandomSurvivorBodyPrefab orig,
-            Xoroshiro128Plus rng, List<UnlockableDef> availableUnlockableDefs)
+            Xoroshiro128Plus rng, List<UnlockableDef> availableUnlockableDefs, bool allowHidden)
         {
             // Don't do anything on first map to play the actually selected character
 
@@ -64,11 +72,11 @@ namespace EveryoneButYou
                 // Find and remove characters from copied unlocked list
                 foreach (UnlockableDef def in availableUnlockableDefs.ToList())
                 {
-                    if (def.name.Contains("Characters."))
+                    if (def.cachedName.Contains("Characters."))
                     {
                         foreach (string character in this.BannedCharacters)
                         {
-                            if (def.name.Contains(character))
+                            if (def.cachedName.Contains(character))
                             {
                                 // Remove from list
                                 //Chat.AddMessage("Removing "+def.name);
@@ -84,17 +92,19 @@ namespace EveryoneButYou
             }
 
             // Run original rng with modified unlocked list
-            if(!this.preventSameCharacterTwice || numCharacters < 2){
-                this.prevChar = orig(rng, availableUnlockableDefs);
+            if (!this.preventSameCharacterTwice || numCharacters < 2)
+            {
+                this.prevChar = orig(rng, availableUnlockableDefs, allowHidden);
                 return this.prevChar;
             }
 
             // Check to see if the new character is same as last
             // Only if setting is enabled and there are enough other characters
-            GameObject newChar = orig(rng, availableUnlockableDefs);
-            while(this.prevChar != null && this.prevChar.name == newChar.name){
+            GameObject newChar = orig(rng, availableUnlockableDefs, allowHidden);
+            while (this.prevChar != null && this.prevChar.name == newChar.name)
+            {
                 Chat.AddMessage("Prevented spawning as " + this.prevChar.name + " again.");
-                newChar = orig(rng, availableUnlockableDefs);
+                newChar = orig(rng, availableUnlockableDefs, allowHidden);
             }
             this.prevChar = newChar;
             return this.prevChar;
