@@ -121,7 +121,7 @@ namespace EveryoneButYou
                 string configText = "[General]" +
                     "\n\n## Enable EveryoneButYou Mod\n# Setting type: Boolean\n# Default value: true\nenabled = " + this.modEnabled.ToString() + 
                     "\n\n## Prevent geting the same character twice in a row\n# Setting type: Boolean\n# Default value: true\npreventionEnabled = " + this.preventSameCharacterTwice.ToString() + 
-                    "\n\n## Characters to disable when playing with Artifact of Metamorphosis\n##{Engineer, Huntress, Loader, Mage, Mercenary, Toolbot, Treebot, Croco}" +
+                    "\n\n## Characters to disable when playing with Artifact of Metamorphosis\n##{Engineer, Huntress, Loader, Mage, Mercenary, Toolbot, Treebot, Croco, Captain, Bandit2}" +
                     "\n# Setting type: string\n# Default value: Engineer, Toolbot\ncharactersToBan = " + this.charactersToBan;
 
                 streamWriter.Write(configText);
