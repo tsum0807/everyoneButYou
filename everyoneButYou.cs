@@ -10,7 +10,7 @@ using System;
 namespace EveryoneButYou
 {
     [BepInDependency("com.bepis.r2api")]
-    [BepInPlugin("com.beneb.EveryoneButYou", "EveryoneButYou", "1.0.0")]
+    [BepInPlugin("com.beneb.EveryoneButYou", "EveryoneButYou", "1.2.0")]
     public class EveryoneButYou : BaseUnityPlugin
     {
         public void Awake()
@@ -79,7 +79,6 @@ namespace EveryoneButYou
                             if (def.cachedName.Contains(character))
                             {
                                 // Remove from list
-                                //Chat.AddMessage("Removing "+def.name);
                                 availableUnlockableDefs.Remove(def);
                                 numCharacters--;
                                 break;
